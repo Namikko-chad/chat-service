@@ -49,10 +49,10 @@ export class UserMessage extends AbstractEntity {
   })
     message: Message;
 
-  @ManyToOne(() => User, user => user.userId)
+  @ManyToOne(() => User, user => user.id)
   @JoinColumn({ 
     name: 'userId',
-    referencedColumnName: 'userId',
+    referencedColumnName: 'id',
   })
     user: User;
 }

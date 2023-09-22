@@ -9,7 +9,7 @@ import { Message, } from '../entities/Message.entity';
 export class MessageProcessor {
   private readonly _repository: Repository<Message>;
   
-  constructor(@Inject() _ds: DataSource) {
+  constructor(@Inject(DataSource) _ds: DataSource) {
     this._repository = _ds.getRepository(Message);
   };
 

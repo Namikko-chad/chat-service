@@ -1,3 +1,7 @@
 import { Request, } from 'express';
 
-export type RequestAuth = Request
+export interface RequestAuth extends Request {
+  user: {
+    userId: string
+  };
+}

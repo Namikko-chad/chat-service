@@ -8,7 +8,7 @@ import { UserMessage, } from '../entities/UserMessage.entity';
 export class UserMessageProcessor {
   private readonly _repository: Repository<UserMessage>;
   
-  constructor(@Inject() private readonly _ds: DataSource) {
+  constructor(@Inject(DataSource) private readonly _ds: DataSource) {
     this._repository = this._ds.getRepository(UserMessage);
   };
 

@@ -1,6 +1,8 @@
 import { Inject, Injectable, } from '@nestjs/common';
+import { EventEmitter2, } from '@nestjs/event-emitter';
 import { DataSource, } from 'typeorm';
 
+import { Event, } from './chats.enum';
 import { 
   MessageCreate, 
   MessageDelete, 
@@ -15,33 +17,22 @@ import {
   UserRemove, } from './chats.interfaces';
 import { Message, } from './entities/Message.entity';
 import { Room, } from './entities/Room.entity';
+import { FileProcessor, } from './processors/chats.files.processor';
 import { MessageProcessor, } from './processors/chats.messages.processor';
 import { RoomProcessor, } from './processors/chats.rooms.processor';
 import { UserMessageProcessor, } from './processors/chats.user-messages.processor';
 import { UserProcessor, } from './processors/chats.users.processor';
 
-export interface procFunc {
-  roomCreate(payload: RoomCreate): Promise<Room>;
-  roomUpdate(payload: RoomUpdate): Promise<Room>;
-  roomDelete(payload: RoomDelete): Promise<void>;
-  userAdd(payload: UserAdd): Promise<void>;
-  userRemove(payload: UserRemove): Promise<void>;
-  messageCreate(payload: MessageCreate): Promise<Message>;
-  messageUpdate(payload: MessageUpdate): Promise<Message>;
-  messageDelete(payload: MessageDelete): Promise<void>;
-  userMessageRead(payload: UserMessageRead): Promise<void>;
-  userMessageDeliver(payload: UserMessageDeliver): Promise<void>;
-  userMessageDelete(payload: UserMessageDelete): Promise<void>;
-}
-
 @Injectable()
 export class ChatProcessor {
   constructor(
-    @Inject() private readonly _ds: DataSource,
-    @Inject() private readonly roomProcessor: RoomProcessor,
-    @Inject() private readonly userProcessor: UserProcessor,
-    @Inject() private readonly messageProcessor: MessageProcessor,
-    @Inject() private readonly userMessageProcessor: UserMessageProcessor
+    @Inject(DataSource) private readonly _ds: DataSource,
+    @Inject(RoomProcessor) private readonly roomProcessor: RoomProcessor,
+    @Inject(UserProcessor) private readonly userProcessor: UserProcessor,
+    @Inject(MessageProcessor) private readonly messageProcessor: MessageProcessor,
+    @Inject(FileProcessor) private readonly fileProcessor: FileProcessor,
+    @Inject(UserMessageProcessor) private readonly userMessageProcessor: UserMessageProcessor,
+    @Inject(EventEmitter2) private readonly eventEmitter: EventEmitter2
   ) {
     this._ds;
   }
@@ -50,6 +41,9 @@ export class ChatProcessor {
     const room = await this.roomProcessor.create(payload);
     if (payload.userIds)
       await this.userProcessor.add(room.id, payload.userIds);
+    this.eventEmitter.emit(Event.RoomCreated, {
+      roomId: room.id,
+    });
 
     return room;
   }
@@ -77,9 +71,15 @@ export class ChatProcessor {
     const users = await this.userProcessor.list(payload.roomId);
     await this.userMessageProcessor.create(payload.roomId, users.map( user => user.userId ), [message.id]);
 
-    // TODO add file processor
-    // if (payload.files)
-    //   await this.fileProcessor.create(payload)
+    if (payload.files)
+      await this.fileProcessor.create(payload.files.map( file => {
+        return {
+          roomId: payload.roomId,
+          messageId: message.id,
+          fileId: file.id,
+        };
+      }));
+
     return message;
   }
 
@@ -93,6 +93,9 @@ export class ChatProcessor {
   }
 
   async messageDelete(payload: MessageDelete): Promise<void> {
+    const files = await this.fileProcessor.listByMessage(payload.messageId, undefined);
+    if (files)
+      await this.fileProcessor.delete(payload.roomId, payload.messageId, files.map( file => file.id ));
     await this.messageProcessor.delete(payload.roomId, payload.messageId);
   }
 

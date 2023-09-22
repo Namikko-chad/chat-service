@@ -13,6 +13,7 @@ export enum Event {
   MessageDelivered = 'message-delivered',
   MessageRead = 'message-read',
   MessageEdited = 'message-edited',
+  MessageDeleted = 'message-deleted',
   UserAdded = 'user-added',
   UserDeleted = 'user-deleted',
 }

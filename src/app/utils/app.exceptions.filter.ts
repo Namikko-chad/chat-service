@@ -13,7 +13,7 @@ export class AppExceptionsFilter implements ExceptionFilter {
     this._adapter = adapter;
   }
 
-  catch(exception: unknown, host: ArgumentsHost): void {
+  catch(exception: object, host: ArgumentsHost): void {
     const { httpAdapter, } = this._adapter;
     const ctx = host.switchToHttp();
     let httpStatus: number;
@@ -21,6 +21,8 @@ export class AppExceptionsFilter implements ExceptionFilter {
 
     switch (exception.constructor.name) {
       case 'HttpException':
+      case 'UnauthorizedException':
+      case 'NotFoundException':
 
       case 'ForbiddenException': {
         httpStatus = (exception as HttpException).getStatus();

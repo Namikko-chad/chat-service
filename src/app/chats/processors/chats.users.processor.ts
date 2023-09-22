@@ -7,7 +7,7 @@ import { User, } from '../entities/User.entity';
 export class UserProcessor {
   private readonly _repository: Repository<User>;
 
-  constructor(@Inject() private readonly _ds: DataSource) {
+  constructor(@Inject(DataSource) private readonly _ds: DataSource) {
     this._repository = this._ds.getRepository(User);
   };
 

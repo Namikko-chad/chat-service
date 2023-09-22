@@ -1,8 +1,9 @@
+import { EventEmitter2, } from '@nestjs/event-emitter';
 import { DataSource, } from 'typeorm';
 
 import { afterAll, beforeAll, describe, expect, it, } from '@jest/globals';
 
-import { CustomNamingStrategy, } from '../database/CustomNamingStrategy';
+import { CustomNamingStrategy, } from '../database';
 import { Utils, } from '../utils';
 import { MessageStatus, } from './chats.enum';
 import { ChatProcessor, } from './chats.processor';
@@ -12,6 +13,7 @@ import { Room, } from './entities/Room.entity';
 import { User, } from './entities/User.entity';
 import { UserMessage, } from './entities/UserMessage.entity';
 import { RoomGenerator, } from './generators/Room.generator';
+import { FileProcessor, } from './processors/chats.files.processor';
 import { MessageProcessor, } from './processors/chats.messages.processor';
 import { RoomProcessor, } from './processors/chats.rooms.processor';
 import { UserMessageProcessor, } from './processors/chats.user-messages.processor';
@@ -28,8 +30,17 @@ describe('ChatProcessor', () => {
   const roomProcessor = new RoomProcessor(dataSource);
   const userProcessor = new UserProcessor(dataSource);
   const messageProcessor = new MessageProcessor(dataSource);
+  const fileProcessor = new FileProcessor(dataSource);
   const userMessageProcessor = new UserMessageProcessor(dataSource);
-  const processor = new ChatProcessor(dataSource, roomProcessor, userProcessor, messageProcessor, userMessageProcessor);
+  const processor = new ChatProcessor(
+    dataSource, 
+    roomProcessor, 
+    userProcessor, 
+    messageProcessor, 
+    fileProcessor, 
+    userMessageProcessor, 
+    new EventEmitter2()
+  );
   const roomGenerator = new RoomGenerator(dataSource);
 
   beforeAll(async () => {
