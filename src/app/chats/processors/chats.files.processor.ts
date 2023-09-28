@@ -30,9 +30,9 @@ export class FileProcessor {
   }
 
   async create(property: DeepPartial<File>[]): Promise<File[]> {
-    const message = this._repository.create(property);
+    const file = this._repository.create(property);
 
-    return this._repository.save(message);
+    return this._repository.save(file);
   }
 
   async delete(roomId: string, messageId: string, fileIds: string[]): Promise<void> {

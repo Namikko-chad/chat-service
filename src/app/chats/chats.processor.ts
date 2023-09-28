@@ -1,12 +1,10 @@
 import { Inject, Injectable, } from '@nestjs/common';
-import { EventEmitter2, } from '@nestjs/event-emitter';
 import { DataSource, } from 'typeorm';
 
-import { Event, } from './chats.enum';
 import { 
   MessageCreate, 
   MessageDelete, 
-  MessageUpdate, 
+  MessageEdit, 
   RoomCreate, 
   RoomDelete, 
   RoomUpdate, 
@@ -31,8 +29,7 @@ export class ChatProcessor {
     @Inject(UserProcessor) private readonly userProcessor: UserProcessor,
     @Inject(MessageProcessor) private readonly messageProcessor: MessageProcessor,
     @Inject(FileProcessor) private readonly fileProcessor: FileProcessor,
-    @Inject(UserMessageProcessor) private readonly userMessageProcessor: UserMessageProcessor,
-    @Inject(EventEmitter2) private readonly eventEmitter: EventEmitter2
+    @Inject(UserMessageProcessor) private readonly userMessageProcessor: UserMessageProcessor
   ) {
     this._ds;
   }
@@ -41,9 +38,6 @@ export class ChatProcessor {
     const room = await this.roomProcessor.create(payload);
     if (payload.userIds)
       await this.userProcessor.add(room.id, payload.userIds);
-    this.eventEmitter.emit(Event.RoomCreated, {
-      roomId: room.id,
-    });
 
     return room;
   }
@@ -83,7 +77,7 @@ export class ChatProcessor {
     return message;
   }
 
-  async messageUpdate(payload: MessageUpdate): Promise<Message> {
+  async messageEdit(payload: MessageEdit): Promise<Message> {
     const message = await this.messageProcessor.update(payload.roomId, payload.messageId, payload);
 
     // TODO add file processor
@@ -99,15 +93,15 @@ export class ChatProcessor {
     await this.messageProcessor.delete(payload.roomId, payload.messageId);
   }
 
-  async userMessageRead(payload: UserMessageRead): Promise<void> {
-    await this.userMessageProcessor.read(payload.roomId, payload.userId, payload.messageIds);
+  async userMessageDeliver(payload: UserMessageDeliver): Promise<void> {
+    await this.userMessageProcessor.deliver([payload.roomId], [payload.userId], payload.messageIds);
   }
 
-  async userMessageDeliver(payload: UserMessageDeliver): Promise<void> {
-    await this.userMessageProcessor.deliver(payload.roomId, payload.userId, payload.messageIds);
+  async userMessageRead(payload: UserMessageRead): Promise<void> {
+    await this.userMessageProcessor.read([payload.roomId], [payload.userId], payload.messageIds);
   }
 
   async userMessageDelete(payload: UserMessageDelete): Promise<void> {
-    await this.userMessageProcessor.delete(payload.roomId, payload.userId, payload.messageIds);
+    await this.userMessageProcessor.delete([payload.roomId], [payload.userId], payload.messageIds);
   }
 }

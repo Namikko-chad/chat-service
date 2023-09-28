@@ -20,7 +20,7 @@ export class RoomCreateDto {
   @ApiProperty({})
   @IsOptional()
   @IsUUID('all', { each: true, })
-    userIds?: string;
+    userIds?: string[];
 }
 
 export class RoomUpdateDto {

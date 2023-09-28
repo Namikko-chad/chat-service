@@ -4,7 +4,6 @@ import { AbstractEntity, EnumColumn, } from '../../database';
 import { MessageStatus, } from '../chats.enum';
 import { Message, } from './Message.entity';
 import { Room, } from './Room.entity';
-import { User, } from './User.entity';
 
 @Entity({
   schema: 'chat',
@@ -35,24 +34,21 @@ export class UserMessage extends AbstractEntity {
   })
     status!: MessageStatus;
 
-  @ManyToOne(() => Room, room => room.id)
+  @ManyToOne(() => Room, room => room.id, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ 
     name: 'roomId',
     referencedColumnName: 'id',
   })
     room: Room;
 
-  @ManyToOne(() => Message, message => message.id)
+  @ManyToOne(() => Message, message => message.id, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ 
     name: 'messageId',
     referencedColumnName: 'id',
   })
     message: Message;
-
-  @ManyToOne(() => User, user => user.id)
-  @JoinColumn({ 
-    name: 'userId',
-    referencedColumnName: 'id',
-  })
-    user: User;
 }

@@ -5,17 +5,15 @@ export enum MessageStatus {
   Deleted = 'deleted',
 }
 
-export enum Event {
-  RoomCreated = 'room-created',
-  RoomUpdated = 'room-updated',
-  RoomDeleted = 'room-deleted',
-  MessageCreated = 'message-created',
-  MessageDelivered = 'message-delivered',
-  MessageRead = 'message-read',
-  MessageEdited = 'message-edited',
-  MessageDeleted = 'message-deleted',
-  UserAdded = 'user-added',
-  UserDeleted = 'user-deleted',
+export enum Flow {
+  RoomCreate = 'room-create',
+  RoomUpdate = 'room-update',
+  RoomDelete = 'room-delete',
+  MessageCreate = 'message-create',
+  MessageEdit = 'message-edit',
+  MessageDelete = 'message-delete',
+  UserAdd = 'user-add',
+  UserRemove = 'user-remove'
 }
 
 export enum Errors {

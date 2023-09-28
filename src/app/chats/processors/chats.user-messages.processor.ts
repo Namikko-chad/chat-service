@@ -33,10 +33,10 @@ export class UserMessageProcessor {
       .execute();
   }
 
-  async deliver(roomId: string, userId: string, messageIds: string[]): Promise<void> {
+  async deliver(roomIds: string[], userIds: string[], messageIds: string[]): Promise<void> {
     await this._repository.update({
-      roomId,
-      userId,
+      roomId: In(roomIds),
+      userId: In(userIds),
       messageId: In(messageIds),
       status: MessageStatus.New,
     }, {
@@ -44,10 +44,10 @@ export class UserMessageProcessor {
     });
   }
 
-  async read(roomId: string, userId: string, messageIds: string[]): Promise<void> {
+  async read(roomIds: string[], userIds: string[], messageIds: string[]): Promise<void> {
     await this._repository.update({
-      roomId,
-      userId,
+      roomId: In(roomIds),
+      userId: In(userIds),
       messageId: In(messageIds),
       status: MessageStatus.Delivered,
     }, {
@@ -55,10 +55,10 @@ export class UserMessageProcessor {
     });
   }
 
-  async delete(roomId: string, userId: string, messageIds: string[]): Promise<void> {
+  async delete(roomIds: string[], userIds: string[], messageIds: string[]): Promise<void> {
     await this._repository.update({
-      roomId,
-      userId,
+      roomId: In(roomIds),
+      userId: In(userIds),
       messageId: In(messageIds),
       status: MessageStatus.Read,
     }, {

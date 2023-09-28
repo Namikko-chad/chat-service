@@ -1,7 +1,9 @@
 import { ConfigModule, ConfigService, } from '@nestjs/config';
 import { HttpAdapterHost, NestFactory, } from '@nestjs/core';
+import { MicroserviceOptions, } from '@nestjs/microservices';
 import helmet from 'helmet';
 
+import { AmqpConfig, AmqpServer, } from './amqp';
 import { AppModule, } from './app/app.module';
 import { AppExceptionsFilter, } from './app/utils/app.exceptions.filter';
 import { LoggingInterceptor, } from './app/utils/app.logging.interceptor';
@@ -35,6 +37,10 @@ async function init() {
   if (config.getOrThrow<string>('NODE_ENV') !== 'production') {
     initSwagger(app, config);
   }
+
+  app.connectMicroservice<MicroserviceOptions>({
+    strategy: new AmqpServer(new AmqpConfig(config)),
+  });
 
   await app.startAllMicroservices();
   await app.listen(config.get<number>('SERVER_PORT') ?? 3050);

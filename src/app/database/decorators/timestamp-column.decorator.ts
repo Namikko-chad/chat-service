@@ -27,7 +27,7 @@ export function UpdateTimestampColumn(options?: ColumnOptions): PropertyDecorato
 
 const TimestampTransformer: ValueTransformer = {
   to(value?: Date | null): string | null | undefined {
-    return value ? new Date(value).toISOString() : null;
+    return value instanceof Date || typeof value === 'number' ? new Date(value).toISOString() : value;
   },
   from(value?: string | null): Date | null | undefined {
     return value != null ? new Date(value) : null;

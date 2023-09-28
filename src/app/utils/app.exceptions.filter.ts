@@ -23,7 +23,8 @@ export class AppExceptionsFilter implements ExceptionFilter {
       case 'HttpException':
       case 'UnauthorizedException':
       case 'NotFoundException':
-
+      case 'BadRequestException':
+        
       case 'ForbiddenException': {
         httpStatus = (exception as HttpException).getStatus();
         message = (exception as HttpException).getResponse();

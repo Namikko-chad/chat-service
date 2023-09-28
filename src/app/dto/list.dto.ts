@@ -59,7 +59,7 @@ export class ListDto<Entity> {
   })
   @IsString()
   @IsOptional()
-    search: string;
+    search?: string;
 
   @ApiProperty({
     required: false,
@@ -68,7 +68,7 @@ export class ListDto<Entity> {
   @IsOptional()
   @Validate(OrderDirection)
   // @Validate(OrderProperty<Entity>)
-    order: FindOptionsOrder<Entity>;
+    order?: FindOptionsOrder<Entity>;
 
   @ApiProperty({
     required: false,

@@ -22,8 +22,9 @@ export class Message extends AbstractEntity {
 
   @Column({
     type: 'text',
+    nullable: true,
   })
-    message!: string;
+    message?: string;
 
   @Column({
     type: 'boolean',
