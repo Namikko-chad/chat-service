@@ -35,7 +35,8 @@
     "supertest": "^6.3.3",
     "swagger-ui-express": "^4.4.0",
     "typeorm": "0.3.17",
-    "uuid": "^8.3.2"
+    "uuid": "^8.3.2",
+    "uuidv7": "^0.6.3"
   },
   "devDependencies": {
     "@commitlint/cli": "^14.1.0",

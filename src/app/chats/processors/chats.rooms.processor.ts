@@ -15,7 +15,11 @@ export class RoomProcessor {
     this._repository = this.ds.getRepository(Room);
   };
 
-  async get(roomId: string): Promise<Room> {
+  async get(roomId: string): Promise<Room & {
+    usersCount: number
+    messagesCount: number
+    unreadMessagesCount: number
+  }> {
     const room = await this.ds.createQueryBuilder().select([
       'id',
       'name',

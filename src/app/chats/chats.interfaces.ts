@@ -31,10 +31,15 @@ export interface RoomDelete {
   readonly userId: string;
 }
 
-export interface MessageRetrieve {
+export interface MessageList {
   readonly roomId: string;
   readonly userId: string;
   readonly listParam: ListDto<Message>;
+}
+
+export interface MessageRetrieve {
+  readonly roomId: string;
+  readonly messageId: string;
 }
 
 export interface MessageCreate {

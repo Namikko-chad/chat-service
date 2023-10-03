@@ -5,6 +5,7 @@ import {
   MessageCreate, 
   MessageDelete, 
   MessageEdit, 
+  MessageRetrieve, 
   RoomCreate, 
   RoomDelete, 
   RoomRetrieve, 
@@ -82,12 +83,20 @@ export class ChatProcessor {
     return message;
   }
 
+  async messageRetrieve(payload: MessageRetrieve): Promise<Message> {
+    const message = await this.messageProcessor.get(payload.messageId);
+
+    return message;
+  }
+
   async messageEdit(payload: MessageEdit): Promise<Message> {
     const message = await this.messageProcessor.update(payload.roomId, payload.messageId, payload);
 
-    // TODO add file processor
-    // if (payload.files)
-    //   await this.fileProcessor.create(payload)
+    if (payload.files) {
+      await this.fileProcessor.delete(payload.roomId, payload.messageId, payload.files.map( file => file.id ));
+      await this.fileProcessor.create(payload.files);
+    }
+
     return message;
   }
 

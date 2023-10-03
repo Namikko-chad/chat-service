@@ -25,11 +25,19 @@ describe('UserProcessor', () => {
   const roomProcessor = new RoomProcessor(dataSource);
   const roomGenerator = new RoomGenerator(dataSource);
 
-  let room: Room;
+  let room: Room & {
+    usersCount: number
+    messagesCount: number
+    unreadMessagesCount: number
+  };
 
   beforeAll(async () => {
     await dataSource.initialize();
-    room = await roomGenerator.create();
+    room = await roomGenerator.create() as Room & {
+      usersCount: number
+      messagesCount: number
+      unreadMessagesCount: number
+    };
   });
 
   afterAll(async () => {

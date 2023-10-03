@@ -77,14 +77,22 @@ describe('ChatProcessor', () => {
   });
 
   describe('Work with users', () => {
-    let room: Room;
+    let room: Room & {
+      usersCount: number
+      messagesCount: number
+      unreadMessagesCount: number
+    };
     const userIds = [
       Utils.getUUID(),
       Utils.getUUID()
     ];
 
     beforeAll(async () => {
-      room = await roomGenerator.create();
+      room = await roomGenerator.create() as Room & {
+        usersCount: number
+        messagesCount: number
+        unreadMessagesCount: number
+      };
     });
 
     it('should added user to room', async () => {
@@ -109,7 +117,11 @@ describe('ChatProcessor', () => {
   });
 
   describe('Work with messages', () => {
-    let room: Room;
+    let room: Room & {
+      usersCount: number
+      messagesCount: number
+      unreadMessagesCount: number
+    };
     let message: Message;
     const userIds = [
       Utils.getUUID(),
@@ -117,7 +129,11 @@ describe('ChatProcessor', () => {
     ];
 
     beforeAll(async () => {
-      room = await roomGenerator.create();
+      room = await roomGenerator.create() as Room & {
+        usersCount: number
+        messagesCount: number
+        unreadMessagesCount: number
+      };
       await processor.userAdd({
         roomId: room.id,
         userId: userIds[0],

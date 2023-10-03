@@ -9,12 +9,12 @@ export enum Channels {
 }
 
 export interface INotificationPayload {
-  type: NotificationType;
-  subject?: string;
-  message?: string;
-  placeHolders?: Array<string | number>;
-  files?: FileInfo[];
-  data?: Record<string, unknown>;
-  channels: Partial<Record<Channels, string>>;
-  preferredChannel?: Channels;
+  readonly type: NotificationType;
+  readonly subject?: string;
+  readonly message?: string;
+  readonly placeHolders?: Array<string | number>;
+  readonly files?: FileInfo[];
+  readonly data?: Record<string, unknown>;
+  readonly destination?: readonly string[] | string;
+  readonly preferredChannel?: Channels;
 }

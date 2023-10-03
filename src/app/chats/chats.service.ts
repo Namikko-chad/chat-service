@@ -7,7 +7,7 @@ import { Errors, ErrorsMessages, MessageStatus, } from './chats.enum';
 import { 
   MessageCreate, 
   MessageEdit, 
-  MessageRetrieve, 
+  MessageList, 
   RoomCreate, 
   RoomDelete, 
   RoomList, 
@@ -98,6 +98,7 @@ export class ChatService {
     
     this.event.emit(Event.RoomCreated, {
       roomId: room.id,
+      userIds: payload.userId,
     });
 
     return this.roomRetrieve({
@@ -146,11 +147,10 @@ export class ChatService {
 
   async roomUpdate(payload: RoomUpdate): Promise<RoomDto> {
     await this.userInRoom(payload.userId, payload.roomId);
-
-    await this._processor.roomUpdate(payload);
     
     this.event.emit(Event.RoomUpdated, {
       roomId: payload.roomId,
+      userIds: payload.userId,
     });
 
     return this.roomRetrieve(payload);
@@ -161,12 +161,13 @@ export class ChatService {
     
     this.event.emit(Event.RoomDeleted, {
       roomId: payload.roomId,
+      userIds: payload.userId,
     });
 
     return this._processor.roomDelete(payload);
   }
 
-  async messageRetrieve(payload: MessageRetrieve): Promise<[MessageDto[], number]> {
+  async messageRetrieve(payload: MessageList): Promise<[MessageDto[], number]> {
     await this.userInRoom(payload.userId, payload.roomId);
 
     const params = Utils.listParam<Message>(payload.listParam, ['message']);
@@ -211,6 +212,7 @@ export class ChatService {
 
     this.event.emit(Event.MessageCreated, {
       roomId: payload.roomId,
+      userId: payload.userId,
       messageId: message.id,
     });
 
@@ -224,6 +226,7 @@ export class ChatService {
 
     this.event.emit(Event.MessageEdited, {
       roomId: payload.roomId,
+      userId: payload.userId,
       messageId: payload.messageId,
     });
 

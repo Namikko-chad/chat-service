@@ -2,18 +2,19 @@ import { FileInfo, } from '../../dto';
 import { Event, } from './chats.events.enum';
 
 export interface RoomEvent {
-  roomId: string;
-}
-
-export interface UserEvent {
-  roomId: string;
-  userId: string;
+  readonly roomId: string;
+  readonly userId: string;
 }
 
 export interface MessageEvent {
-  roomId: string;
-  userId: string;
-  messageId: string;
+  readonly roomId: string;
+  readonly userId: string;
+  readonly messageId: string;
+}
+
+export interface UserEvent {
+  readonly roomId: string;
+  readonly userId: string;
 }
 
 // Room views
