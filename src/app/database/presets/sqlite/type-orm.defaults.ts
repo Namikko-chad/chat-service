@@ -1,7 +1,25 @@
-import { ObjectLiteral, SelectQueryBuilder, } from 'typeorm';
+import { ObjectLiteral, SelectQueryBuilder, ValueTransformer, } from 'typeorm';
 
 import { TypeORMDefaults as Defaults, } from '../base';
 import { TypeORMPreset, } from '../type-orm.preset';
+
+const JsonTransformer: ValueTransformer = {
+  to(value: unknown | null | undefined): string | null | undefined {
+    return value != null ? JSON.stringify(value) : null;
+  },
+  from(value: string | null | undefined): unknown | null {
+    return value != null ? JSON.parse(value) : null;
+  },
+};
+
+const TimestampTransformer: ValueTransformer = {
+  to(value?: Date | null): string | null | undefined {
+    return value instanceof Date || typeof value === 'number' ? new Date(value).toISOString() : value;
+  },
+  from(value?: string | null): Date | null | undefined {
+    return value != null ? new Date(value) : null;
+  },
+};
 
 /**
  * This is a preset to use inside tests.
@@ -17,6 +35,10 @@ export const TypeORMDefaults: TypeORMPreset = {
     timestamp: 'datetime', // sqlite does not support `timestamptz`
     enum: 'varchar',
     json: 'text',
+  },
+  transformer: {
+    json: JsonTransformer,
+    timestamp: TimestampTransformer,
   },
   // sqlite does not support locking
   locks: {
@@ -39,5 +61,5 @@ export const TypeORMDefaults: TypeORMPreset = {
       },
     },
   },
-  default: () => "CURRENT_TIMESTAMP",
+  default: () => 'CURRENT_TIMESTAMP',
 };

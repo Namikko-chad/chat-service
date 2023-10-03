@@ -1,4 +1,4 @@
-import { ColumnType, ObjectLiteral, SelectQueryBuilder, } from 'typeorm';
+import { ColumnType, ObjectLiteral, SelectQueryBuilder, ValueTransformer, } from 'typeorm';
 
 /**
  * TypeORM presets for account store module.
@@ -35,5 +35,11 @@ export interface TypeORMPreset {
     };
   };
 
-  readonly default?: any
+  readonly transformer?: {
+    readonly timestamp?: ValueTransformer;
+    readonly enum?: ValueTransformer;
+    readonly json?: ValueTransformer;
+  };
+
+  readonly default?: any;
 }

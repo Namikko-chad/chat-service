@@ -2,19 +2,39 @@ import { Inject, Injectable, Logger, } from '@nestjs/common';
 import { OnEvent, } from '@nestjs/event-emitter';
 import { ClientProxy, } from '@nestjs/microservices';
 
+import { Channels, INotificationPayload, NotificationType, } from '../../dto';
+import { ChatProcessor, } from '../chats.processor';
 import { Event, } from './chats.events.enum';
 import { MessageEvent, RoomEvent, UserEvent, } from './chats.events.interfaces';
 
 @Injectable()
 export class ChatEventsService {
   private readonly logger = new Logger(ChatEventsService.name);
-  @Inject(ClientProxy) private readonly client: ClientProxy;
+  constructor(
+    @Inject(ClientProxy) private readonly client: ClientProxy,
+    @Inject(ChatProcessor) private readonly processor: ChatProcessor
+  ) {}
+
+  private emit(payload: INotificationPayload): void {
+    this.client.emit('notifications', payload);
+  }
 
   @OnEvent(Event.RoomCreated)
   async handlerRoomCreatedEvent(payload: RoomEvent): Promise<void> {
+    const room = await this.processor.roomRetrieve(payload);
     this.logger.log(`New event: ${Event.RoomCreated}, param: ${JSON.stringify(payload)}`);
-    this.client.emit('notifications', payload);
-    await Promise.resolve();
+    room.users.forEach( user => this.emit({
+      type: NotificationType.Chat,
+      subject: 'Room created',
+      message: 'Room created',
+      data: {
+        roomId: room.id,
+      },
+      channels: {
+        [Channels.WS]: user.id,
+      },
+      preferredChannel: Channels.WS,
+    }));
   }
 
   @OnEvent(Event.RoomUpdated)

@@ -3,6 +3,7 @@ import { DataSource, DeepPartial, Repository, } from 'typeorm';
 
 import { Exception, } from '../../utils';
 import { Errors, ErrorsMessages, } from '../chats.enum';
+import { File, } from '../entities/File.entity';
 import { Room, } from '../entities/Room.entity';
 import { User, } from '../entities/User.entity';
 
@@ -10,14 +11,14 @@ import { User, } from '../entities/User.entity';
 export class RoomProcessor {
   private readonly _repository: Repository<Room>;
   
-  constructor(@Inject(DataSource) private readonly _ds: DataSource) {
-    this._repository = this._ds.getRepository(Room);
+  constructor(@Inject(DataSource) private readonly ds: DataSource) {
+    this._repository = this.ds.getRepository(Room);
   };
 
   async get(roomId: string): Promise<Room> {
     const usersCountQuery = '(SELECT count(id) FROM "Users" WHERE "roomId" = room.id)';
     const messagesCountQuery = '(SELECT count(id) FROM "Messages" WHERE "roomId" = room.id)';
-    const room = await this._ds.createQueryBuilder().select([
+    const room = await this.ds.createQueryBuilder().select([
       'id',
       'name',
       '"iconId"',
@@ -29,12 +30,18 @@ export class RoomProcessor {
       .from(Room, 'room').where({ id: roomId, })
       // .innerJoinAndSelect('room.users', 'users')
       .getRawOne<Room>();
-    const users = await this._ds.createQueryBuilder().select()
+    const users = await this.ds.createQueryBuilder().select()
       .from(User, 'user')
       .where({
         roomId,
       }).getMany();
     room.users = users;
+    const files = await this.ds.createQueryBuilder().select()
+      .from(File, 'file')
+      .where({
+        roomId: room.id,
+      }).getRawMany<File>();
+    room.files = files;
 
     return room;
   }

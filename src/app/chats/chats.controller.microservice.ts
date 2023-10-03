@@ -6,8 +6,8 @@ import { MicroserviceLoggingInterceptor, } from '../utils';
 import { Flow, } from './chats.enum';
 import { MessageCreate, MessageEdit, RoomCreate, RoomDelete, RoomUpdate, UserAdd, UserMessageDelete, UserRemove, } from './chats.interfaces';
 import { ChatService, } from './chats.service';
-import { Message, } from './entities/Message.entity';
-import { Room, } from './entities/Room.entity';
+import { MessageDto, } from './dto/message.dto';
+import { RoomDto, } from './dto/room.dto';
 
 @Controller()
 @UseInterceptors(new MicroserviceLoggingInterceptor())
@@ -20,12 +20,12 @@ export class ChatMicroserviceController {
    */
 
   @MessagePattern(Flow.RoomCreate)
-  async roomCreate(@Payload() payload: RoomCreate): Promise<Room> {
+  async roomCreate(@Payload() payload: RoomCreate): Promise<RoomDto> {
     return this._chatService.roomCreate(payload);
   }
 
   @MessagePattern(Flow.RoomUpdate)
-  async roomUpdate(@Payload() payload: RoomUpdate): Promise<Room> {
+  async roomUpdate(@Payload() payload: RoomUpdate): Promise<RoomDto> {
     return this._chatService.roomUpdate(payload);
   }
 
@@ -39,12 +39,12 @@ export class ChatMicroserviceController {
    */
 
   @MessagePattern(Flow.MessageCreate)
-  async messageCreate(@Payload() payload: MessageCreate): Promise<Message> {
+  async messageCreate(@Payload() payload: MessageCreate): Promise<MessageDto> {
     return this._chatService.messageCreate(payload);
   }
 
   @MessagePattern(Flow.MessageEdit)
-  async messageUpdate(@Payload() payload: MessageEdit): Promise<Message> {
+  async messageUpdate(@Payload() payload: MessageEdit): Promise<MessageDto> {
     return this._chatService.messageEdit(payload);
   }
 

@@ -1,15 +1,13 @@
 import { Injectable, } from '@nestjs/common';
 import { ConfigService, } from '@nestjs/config';
 
-import { Token, } from './auth.dto';
+import { Token, } from './auth.enum';
 
 interface JwtTokenInterface {
   secret: string;
 }
 
-export interface JwtAuthInterface {
-  [Token.Access]: JwtTokenInterface;
-}
+type JwtAuthInterface = Record<Token, JwtTokenInterface>
 
 @Injectable()
 export class AuthConfig {

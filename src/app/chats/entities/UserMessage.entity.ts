@@ -2,13 +2,14 @@ import { Column, Entity, JoinColumn, ManyToOne, } from 'typeorm';
 
 import { AbstractEntity, EnumColumn, } from '../../database';
 import { MessageStatus, } from '../chats.enum';
+import { UserMessageModel, } from '../models/user-message.model';
 import { Message, } from './Message.entity';
 import { Room, } from './Room.entity';
 
 @Entity({
   schema: 'chat',
 })
-export class UserMessage extends AbstractEntity {
+export class UserMessage extends AbstractEntity implements UserMessageModel {
 
   @Column({
     type: 'uuid',

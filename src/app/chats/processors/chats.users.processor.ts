@@ -7,8 +7,8 @@ import { User, } from '../entities/User.entity';
 export class UserProcessor {
   private readonly _repository: Repository<User>;
 
-  constructor(@Inject(DataSource) private readonly _ds: DataSource) {
-    this._repository = this._ds.getRepository(User);
+  constructor(@Inject(DataSource) private readonly ds: DataSource) {
+    this._repository = this.ds.getRepository(User);
   };
 
   async list(roomId: string, take = 10): Promise<User[]> {
@@ -21,7 +21,7 @@ export class UserProcessor {
   }
 
   async add(roomId: string, userIds: string[]): Promise<void> {
-    await this._ds.createQueryBuilder().insert().into(User).values(userIds.map(
+    await this.ds.createQueryBuilder().insert().into(User).values(userIds.map(
       userId => {
         return this._repository.create({
           roomId,
@@ -32,7 +32,7 @@ export class UserProcessor {
   }
 
   async remove(roomId: string, userIds: string[]): Promise<void> {
-    await this._ds.createQueryBuilder().delete().from(User).where(userIds.map(
+    await this.ds.createQueryBuilder().delete().from(User).where(userIds.map(
       userId => {
         return {
           roomId,

@@ -1,4 +1,3 @@
-import { EventEmitter2, } from '@nestjs/event-emitter';
 import { DataSource, } from 'typeorm';
 
 import { afterAll, beforeAll, describe, expect, it, } from '@jest/globals';
@@ -38,8 +37,7 @@ describe('ChatProcessor', () => {
     userProcessor, 
     messageProcessor, 
     fileProcessor, 
-    userMessageProcessor, 
-    new EventEmitter2()
+    userMessageProcessor 
   );
   const roomGenerator = new RoomGenerator(dataSource);
 
@@ -53,10 +51,12 @@ describe('ChatProcessor', () => {
 
   describe('Work with room', () => {
     let room: Room;
+    const userId = Utils.getUUID();
 
     it('should create room', async () => {
       room = await processor.roomCreate({
         name: 'testRoom',
+        userId,
       });
       expect(room.name).toBe('testRoom');
     });
@@ -64,13 +64,14 @@ describe('ChatProcessor', () => {
     it('should update room', async () => {
       room = await processor.roomUpdate({
         roomId: room.id,
+        userId,
         name: 'updatedRoom',
       });
       expect(room.name).toBe('updatedRoom');
     });
 
     it('should delete room', async () => {
-      await expect(processor.roomDelete({ roomId: room.id, })).resolves.not.toThrow();
+      await expect(processor.roomDelete({ roomId: room.id, userId, })).resolves.not.toThrow();
     });
 
   });
@@ -89,6 +90,7 @@ describe('ChatProcessor', () => {
     it('should added user to room', async () => {
       await expect(processor.userAdd({
         roomId: room.id,
+        userId: userIds[0],
         userIds,
       })).resolves.not.toThrow();
       room = await roomProcessor.get(room.id);
@@ -98,6 +100,7 @@ describe('ChatProcessor', () => {
     it('should remove user from room', async () => {
       await expect(processor.userRemove({
         roomId: room.id,
+        userId: userIds[0],
         userIds,
       })).resolves.not.toThrow();
       room = await roomProcessor.get(room.id);
@@ -117,6 +120,7 @@ describe('ChatProcessor', () => {
       room = await roomGenerator.create();
       await processor.userAdd({
         roomId: room.id,
+        userId: userIds[0],
         userIds,
       });
     });
@@ -132,7 +136,7 @@ describe('ChatProcessor', () => {
     });
 
     it('should update message', async () => {
-      message = await processor.messageUpdate({
+      message = await processor.messageEdit({
         roomId: room.id,
         userId: userIds[0],
         messageId: message.id, 
@@ -167,6 +171,7 @@ describe('ChatProcessor', () => {
       room = await roomGenerator.create();
       await processor.userAdd({
         roomId: room.id,
+        userId: userIds[0],
         userIds,
       });
       message = await processor.messageCreate({
@@ -201,6 +206,7 @@ describe('ChatProcessor', () => {
         roomId: room.id,
         userId: userIds[1],
         messageIds: [message.id], 
+        forAll: false,
       })).resolves.not.toThrow();
       const userMessage = await userMessageProcessor.get(room.id, userIds[1], message.id);
       expect(userMessage.status).toBe(MessageStatus.Deleted);

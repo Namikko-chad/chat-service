@@ -2,6 +2,7 @@ import { Column, Entity, JoinColumn, OneToMany, } from 'typeorm';
 
 import { AbstractEntity, } from '../../database';
 import { Utils, } from '../../utils';
+import { RoomModel, } from '../models/room.model';
 import { File, } from './File.entity';
 import { Message, } from './Message.entity';
 import { User, } from './User.entity';
@@ -9,7 +10,7 @@ import { User, } from './User.entity';
 @Entity({
   schema: 'chat',
 })
-export class Room extends AbstractEntity {
+export class Room extends AbstractEntity implements RoomModel {
 
   @Column({
     type: 'varchar',
@@ -23,12 +24,6 @@ export class Room extends AbstractEntity {
     nullable: true,
   })
     iconId?: string;
-
-  public usersCount!: number;
-
-  public messagesCount!: number;
-
-  public unreadMessagesCount!: number;
 
   @OneToMany(() => Message, message => message.roomId)
   @JoinColumn({ 

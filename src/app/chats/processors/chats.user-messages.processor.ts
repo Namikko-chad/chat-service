@@ -8,8 +8,8 @@ import { UserMessage, } from '../entities/UserMessage.entity';
 export class UserMessageProcessor {
   private readonly _repository: Repository<UserMessage>;
   
-  constructor(@Inject(DataSource) private readonly _ds: DataSource) {
-    this._repository = this._ds.getRepository(UserMessage);
+  constructor(@Inject(DataSource) private readonly ds: DataSource) {
+    this._repository = this.ds.getRepository(UserMessage);
   };
 
   async get(roomId: string, userId: string, messageId: string): Promise<UserMessage> {
@@ -21,7 +21,7 @@ export class UserMessageProcessor {
   }
 
   async create(roomId: string, userIds: string[], messageIds: string[]): Promise<void> {
-    await this._ds.createQueryBuilder().insert().into(UserMessage)
+    await this.ds.createQueryBuilder().insert().into(UserMessage)
       .values(
         userIds.map( userId => messageIds.map( messageId => {
           return this._repository.create({

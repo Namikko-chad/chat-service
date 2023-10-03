@@ -60,19 +60,19 @@ describe('RoomProcessor', () => {
     });
 
     it('should set delivered status', async () => {
-      await expect(processor.deliver(room.id, userId, [message.id])).resolves.not.toThrow();
+      await expect(processor.deliver([room.id], [userId], [message.id])).resolves.not.toThrow();
       userMessage = await processor.get(room.id, userId, message.id);
       expect(userMessage.status).toBe(MessageStatus.Delivered);
     });
 
     it('should set read message', async () => {
-      await expect(processor.read(room.id, userId, [message.id])).resolves.not.toThrow();
+      await expect(processor.read([room.id], [userId], [message.id])).resolves.not.toThrow();
       userMessage = await processor.get(room.id, userId, message.id);
       expect(userMessage.status).toBe(MessageStatus.Read);
     });
 
     it('should set deleted status', async () => {
-      await expect(processor.delete(room.id, userId, [message.id])).resolves.not.toThrow();
+      await expect(processor.delete([room.id], [userId], [message.id])).resolves.not.toThrow();
       userMessage = await processor.get(room.id, userId, message.id);
       expect(userMessage.status).toBe(MessageStatus.Deleted);
     });

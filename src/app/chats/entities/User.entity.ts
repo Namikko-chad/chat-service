@@ -1,12 +1,13 @@
 import { Column, Entity, JoinColumn, ManyToOne, } from 'typeorm';
 
 import { AbstractEntity, } from '../../database';
+import { UserModel, } from '../models/user.model';
 import { Room, } from './Room.entity';
 
 @Entity({
   schema: 'chat',
 })
-export class User extends AbstractEntity {
+export class User extends AbstractEntity implements UserModel {
 
   @Column({
     type: 'uuid',

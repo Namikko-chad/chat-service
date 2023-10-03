@@ -7,8 +7,8 @@ import { File, } from '../entities/File.entity';
 export class FileProcessor {
   private readonly _repository: Repository<File>;
   
-  constructor(@Inject(DataSource) private readonly _ds: DataSource) {
-    this._repository = this._ds.getRepository(File);
+  constructor(@Inject(DataSource) private readonly ds: DataSource) {
+    this._repository = this.ds.getRepository(File);
   };
 
   async listByRoom(roomId: string, take = 10): Promise<File[]> {

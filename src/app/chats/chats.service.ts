@@ -1,6 +1,6 @@
 import { Inject, Injectable, } from '@nestjs/common';
 import { EventEmitter2, } from '@nestjs/event-emitter';
-import { DataSource, In, OrderByCondition, } from 'typeorm';
+import { DataSource, In, Not, OrderByCondition, } from 'typeorm';
 
 import { Exception, Utils, } from '../utils';
 import { Errors, ErrorsMessages, MessageStatus, } from './chats.enum';
@@ -19,6 +19,8 @@ import {
   UserMessageRead, 
   UserRemove, } from './chats.interfaces';
 import { ChatProcessor, } from './chats.processor';
+import { MessageDto, } from './dto/message.dto';
+import { RoomDto, } from './dto/room.dto';
 import { File, } from './entities/File.entity';
 import { Message, } from './entities/Message.entity';
 import { Room, } from './entities/Room.entity';
@@ -50,7 +52,7 @@ export class ChatService {
     return userCheck;
   }
   
-  async roomList(payload: RoomList): Promise<[Room[], number]> {
+  async roomList(payload: RoomList): Promise<[RoomDto[], number]> {
     const params = Utils.listParam<Room>(payload.listParam, ['name']);
     const rooms = await this.ds.createQueryBuilder().select()
       .addSelect('room.id', 'id')
@@ -68,7 +70,11 @@ export class ChatService {
       .offset(params.skip)
       .limit(params.take)
       .orderBy(params.order as OrderByCondition)
-      .getRawMany<Room>();
+      .getRawMany<Room & {
+      usersCount: number
+      messagesCount: number
+      unreadMessagesCount: number
+    }>();
     const count = await this.ds.createQueryBuilder().select().from(Room, 'room').where(params.where).getCount();
     await Promise.all(
       rooms.map( async (room) => {
@@ -81,10 +87,10 @@ export class ChatService {
       })
     );
 
-    return [rooms, count];
+    return [rooms.map(room => RoomDto.create({ ...room, })), count];
   }
 
-  async roomCreate(payload: RoomCreate): Promise<Room> {
+  async roomCreate(payload: RoomCreate): Promise<RoomDto> {
     const room = await this._processor.roomCreate({
       ...payload,
       userIds: [payload.userId].concat(payload.userIds ?? []),
@@ -100,7 +106,7 @@ export class ChatService {
     });
   }
 
-  async roomRetrieve(payload: RoomRetrieve): Promise<Room> {
+  async roomRetrieve(payload: RoomRetrieve): Promise<RoomDto> {
     await this.userInRoom(payload.userId, payload.roomId);
 
     const room = await this.ds.createQueryBuilder().select([
@@ -117,7 +123,11 @@ export class ChatService {
       .from(Room, 'room')
       .where({
         id: payload.roomId,
-      }).getRawOne<Room>();
+      }).getRawOne<Room & {
+      usersCount: number
+      messagesCount: number
+      unreadMessagesCount: number
+    }>();
     const users = await this.ds.createQueryBuilder().select('"userId"')
       .from(User, 'user')
       .where({
@@ -131,10 +141,10 @@ export class ChatService {
       }).getRawMany<File>();
     room.files = files;
 
-    return room;
+    return RoomDto.create(room);
   }
 
-  async roomUpdate(payload: RoomUpdate): Promise<Room> {
+  async roomUpdate(payload: RoomUpdate): Promise<RoomDto> {
     await this.userInRoom(payload.userId, payload.roomId);
 
     await this._processor.roomUpdate(payload);
@@ -156,7 +166,7 @@ export class ChatService {
     return this._processor.roomDelete(payload);
   }
 
-  async messageRetrieve(payload: MessageRetrieve): Promise<[Message[], number]> {
+  async messageRetrieve(payload: MessageRetrieve): Promise<[MessageDto[], number]> {
     await this.userInRoom(payload.userId, payload.roomId);
 
     const params = Utils.listParam<Message>(payload.listParam, ['message']);
@@ -181,10 +191,20 @@ export class ChatService {
       .where(params.where)
       .getCount();
 
-    return [messages, count];
+    await Promise.all(messages.map( async (message) => {
+      const userStatuses = await this.ds.createQueryBuilder().select().addSelect('"userId"').addSelect('status')
+        .from(UserMessage, 'um')
+        .where({
+          messageId: message.id,
+          status: Not(MessageStatus.Deleted),
+        }).getRawMany<UserMessage>();
+      message.userStatuses = userStatuses;
+    }));
+
+    return [messages.map( message => MessageDto.create(message) ), count];
   }
 
-  async messageCreate(payload: MessageCreate): Promise<Message> {
+  async messageCreate(payload: MessageCreate): Promise<MessageDto> {
     await this.userInRoom(payload.userId, payload.roomId);
 
     const message = await this._processor.messageCreate(payload);
@@ -194,10 +214,10 @@ export class ChatService {
       messageId: message.id,
     });
 
-    return message;
+    return MessageDto.create(message);
   }
 
-  async messageEdit(payload: MessageEdit): Promise<Message> {
+  async messageEdit(payload: MessageEdit): Promise<MessageDto> {
     await this.userInRoom(payload.userId, payload.roomId);
 
     const message = await this._processor.messageEdit(payload);
@@ -207,7 +227,7 @@ export class ChatService {
       messageId: payload.messageId,
     });
 
-    return message;
+    return MessageDto.create({ ...message, });
   }
 
   async messageDeliver(payload: UserMessageDeliver): Promise<void> {

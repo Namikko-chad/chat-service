@@ -3,7 +3,7 @@ import { ConfigService, } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule, } from '@nestjs/swagger';
 
 export function initSwagger(app: INestApplication, config: ConfigService) {
-  const url = `${config.get<string>('BASE_URL') ?? 'localhost'}:${config.get<string>('SERVER_PORT') ?? 3010}`;
+  const url = `${config.get<string>('BASE_URL') ?? 'localhost'}:${config.get<string>('SERVER_PORT') ?? 3005}`;
   const routePrefix = config.get<string>('ROUTE_PREFIX') ?? 'api';
   const route = config.get<string>('SWAGGER_PREFIX') ?? 'documentation';
   const documentBuilder = new DocumentBuilder()

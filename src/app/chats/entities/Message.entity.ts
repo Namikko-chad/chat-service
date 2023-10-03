@@ -1,13 +1,15 @@
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, } from 'typeorm';
 
 import { AbstractEntity, } from '../../database';
+import { MessageModel, } from '../models/message.model';
 import { File, } from './File.entity';
 import { Room, } from './Room.entity';
+import { UserMessage, } from './UserMessage.entity';
 
 @Entity({
   schema: 'chat',
 })
-export class Message extends AbstractEntity {
+export class Message extends AbstractEntity implements MessageModel {
   @Column({
     type: 'uuid',
     nullable: false,
@@ -47,4 +49,11 @@ export class Message extends AbstractEntity {
     referencedColumnName: 'messageId',
   })
     files: File[];
+  
+  @OneToMany(() => UserMessage, userMessage => userMessage.messageId)
+  @JoinColumn({ 
+    name: 'id',
+    referencedColumnName: 'messageId',
+  })
+    userStatuses: UserMessage[];
 }

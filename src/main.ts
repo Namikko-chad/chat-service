@@ -43,7 +43,7 @@ async function init() {
   });
 
   await app.startAllMicroservices();
-  await app.listen(config.get<number>('SERVER_PORT') ?? 3050);
+  await app.listen(config.get<number>('SERVER_PORT') ?? 3005);
 }
 
 init().catch((error) => console.error(error));

@@ -7,6 +7,7 @@ import {
   MessageEdit, 
   RoomCreate, 
   RoomDelete, 
+  RoomRetrieve, 
   RoomUpdate, 
   UserAdd, 
   UserMessageDelete, 
@@ -24,14 +25,14 @@ import { UserProcessor, } from './processors/chats.users.processor';
 @Injectable()
 export class ChatProcessor {
   constructor(
-    @Inject(DataSource) private readonly _ds: DataSource,
+    @Inject(DataSource) private readonly ds: DataSource,
     @Inject(RoomProcessor) private readonly roomProcessor: RoomProcessor,
     @Inject(UserProcessor) private readonly userProcessor: UserProcessor,
     @Inject(MessageProcessor) private readonly messageProcessor: MessageProcessor,
     @Inject(FileProcessor) private readonly fileProcessor: FileProcessor,
     @Inject(UserMessageProcessor) private readonly userMessageProcessor: UserMessageProcessor
   ) {
-    this._ds;
+    this.ds;
   }
 
   async roomCreate(payload: RoomCreate): Promise<Room> {
@@ -40,6 +41,10 @@ export class ChatProcessor {
       await this.userProcessor.add(room.id, payload.userIds);
 
     return room;
+  }
+
+  async roomRetrieve(payload: Omit<RoomRetrieve, 'userId'>): Promise<Room> {
+    return this.roomProcessor.get(payload.roomId);
   }
 
   async roomUpdate(payload: RoomUpdate): Promise<Room> {

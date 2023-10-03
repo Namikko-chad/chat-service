@@ -4,8 +4,7 @@ import {
   CreateDateColumn,
   PrimaryColumn,
   PrimaryColumnOptions,
-  UpdateDateColumn,
-  ValueTransformer, } from 'typeorm';
+  UpdateDateColumn, } from 'typeorm';
 
 import { TypeORMDefaults, } from '../presets';
 
@@ -25,19 +24,10 @@ export function UpdateTimestampColumn(options?: ColumnOptions): PropertyDecorato
   return UpdateDateColumn(timestampColumnOptions(options));
 }
 
-const TimestampTransformer: ValueTransformer = {
-  to(value?: Date | null): string | null | undefined {
-    return value instanceof Date || typeof value === 'number' ? new Date(value).toISOString() : value;
-  },
-  from(value?: string | null): Date | null | undefined {
-    return value != null ? new Date(value) : null;
-  },
-};
-
 function timestampColumnOptions(options?: PrimaryColumnOptions): PrimaryColumnOptions;
 function timestampColumnOptions(options?: ColumnOptions): ColumnOptions;
 function timestampColumnOptions(options: ColumnOptions | PrimaryColumnOptions = {}): ColumnOptions | PrimaryColumnOptions {
-  const { type = TypeORMDefaults.types.timestamp, transformer = TimestampTransformer, } = options;
+  const { type = TypeORMDefaults.types.timestamp, transformer = TypeORMDefaults?.transformer?.timestamp, } = options;
 
   return {
     ...options,

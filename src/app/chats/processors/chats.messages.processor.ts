@@ -9,8 +9,8 @@ import { Message, } from '../entities/Message.entity';
 export class MessageProcessor {
   private readonly _repository: Repository<Message>;
   
-  constructor(@Inject(DataSource) _ds: DataSource) {
-    this._repository = _ds.getRepository(Message);
+  constructor(@Inject(DataSource) ds: DataSource) {
+    this._repository = ds.getRepository(Message);
   };
 
   async list(roomId: string, take = 10): Promise<Message[]> {

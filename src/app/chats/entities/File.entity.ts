@@ -1,14 +1,16 @@
 
 import { Column, Entity, JoinColumn, ManyToOne, } from 'typeorm';
 
-import { AbstractEntity, } from '../../database';
+import { AbstractEntity, JsonColumn, } from '../../database';
+import { FileInfo, } from '../../dto';
+import { FileModel, } from '../models/file.model';
 import { Message, } from './Message.entity';
 import { Room, } from './Room.entity';
 
 @Entity({
   schema: 'chat',
 })
-export class File extends AbstractEntity {
+export class File extends AbstractEntity implements FileModel {
   @Column({
     type: 'uuid',
     nullable: false,
@@ -26,6 +28,12 @@ export class File extends AbstractEntity {
     nullable: false,
   })
     fileId!: string;
+
+  @JsonColumn({
+    type: 'json',
+    nullable: false,
+  })
+    meta!: FileInfo;
 
   @ManyToOne(() => Room, room => room.id, {
     onDelete: 'CASCADE',

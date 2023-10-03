@@ -24,6 +24,8 @@ export class AppExceptionsFilter implements ExceptionFilter {
       case 'UnauthorizedException':
       case 'NotFoundException':
       case 'BadRequestException':
+      case 'UnsupportedMediaTypeException':
+      case 'PayloadTooLargeException':
         
       case 'ForbiddenException': {
         httpStatus = (exception as HttpException).getStatus();
