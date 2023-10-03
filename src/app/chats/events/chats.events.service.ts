@@ -32,7 +32,7 @@ export class ChatEventsService {
         roomId: room.id,
       },
       channels: {
-        [Channels.WS]: user.id,
+        [Channels.WS]: user.userId,
       },
       preferredChannel: Channels.WS,
     }));

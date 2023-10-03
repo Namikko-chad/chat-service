@@ -16,8 +16,6 @@ export class RoomProcessor {
   };
 
   async get(roomId: string): Promise<Room> {
-    const usersCountQuery = '(SELECT count(id) FROM "Users" WHERE "roomId" = room.id)';
-    const messagesCountQuery = '(SELECT count(id) FROM "Messages" WHERE "roomId" = room.id)';
     const room = await this.ds.createQueryBuilder().select([
       'id',
       'name',
@@ -25,11 +23,17 @@ export class RoomProcessor {
       '"createdAt"',
       '"updatedAt"'
     ])
-      .addSelect(usersCountQuery, 'usersCount')
-      .addSelect(messagesCountQuery, 'messagesCount')
-      .from(Room, 'room').where({ id: roomId, })
-      // .innerJoinAndSelect('room.users', 'users')
-      .getRawOne<Room>();
+      .addSelect('(SELECT count(id) FROM "Users" WHERE "roomId" = room.id) :: INTEGER', 'usersCount')
+      .addSelect('(SELECT count(id) FROM "Messages" WHERE "roomId" = room.id) :: INTEGER', 'messagesCount')
+      .addSelect('0 :: INTEGER', 'unreadMessagesCount')
+      .from(Room, 'room')
+      .where({
+        id: roomId,
+      }).getRawOne<Room & {
+      usersCount: number
+      messagesCount: number
+      unreadMessagesCount: number
+    }>();
     const users = await this.ds.createQueryBuilder().select('"userId"')
       .from(User, 'user')
       .where({
