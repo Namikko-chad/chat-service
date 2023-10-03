@@ -30,11 +30,11 @@ export class RoomProcessor {
       .from(Room, 'room').where({ id: roomId, })
       // .innerJoinAndSelect('room.users', 'users')
       .getRawOne<Room>();
-    const users = await this.ds.createQueryBuilder().select()
+    const users = await this.ds.createQueryBuilder().select('"userId"')
       .from(User, 'user')
       .where({
-        roomId,
-      }).getMany();
+        roomId: room.id,
+      }).getRawMany<User>();
     room.users = users;
     const files = await this.ds.createQueryBuilder().select()
       .from(File, 'file')

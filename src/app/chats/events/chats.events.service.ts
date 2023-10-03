@@ -28,6 +28,7 @@ export class ChatEventsService {
       subject: 'Room created',
       message: 'Room created',
       data: {
+        event: Event.RoomCreated,
         roomId: room.id,
       },
       channels: {
